@@ -1,26 +1,155 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffffff;
+  --primary: #bd42f4;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: var(--primary);
+  --font-sans: var(--font-poppins);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: #000000;
+  color: #ffffff;
+  font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Button Styles */
+.btn-primary {
+  @apply bg-white text-black px-12 py-5 text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:bg-gray-200 hover:scale-105 rounded-full shadow-xl;
+}
+
+.btn-secondary {
+  @apply bg-[#bd42f4] text-white px-12 py-5 text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:bg-[#a835d9] hover:scale-105 hover:shadow-[0_0_20px_rgba(189,66,244,0.4)] rounded-full;
+}
+
+.btn-outline {
+  @apply border border-white text-white px-12 py-5 text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:bg-white hover:text-black rounded-full;
+}
+
+/* Section Spacing */
+section {
+  @apply py-24 md:py-32 lg:py-40;
+}
+
+/* Layout Spacing */
+main {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+@media (min-width: 768px) {
+  main {
+    padding: 0 3rem 6rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Header Spacing */
+header {
+  min-height: 100px;
+}
+
+@media (min-width: 768px) {
+  header {
+    min-height: 120px;
+  }
+}
+
+/* Footer Spacing */
+footer {
+  min-height: 600px;
+  margin-top: 6rem;
+}
+
+@media (min-width: 768px) {
+  footer {
+    min-height: 700px;
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 1s ease-out forwards;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 1s ease-out forwards;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes slide-horizontal {
+  0%, 100% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+}
+
+.animate-slide-horizontal {
+  animation: slide-horizontal 4s ease-in-out infinite;
 }
