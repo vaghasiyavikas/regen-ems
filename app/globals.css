@@ -1,4 +1,3 @@
-@import "tailwindcss";
 
 :root {
   --background: #000000;
@@ -14,8 +13,8 @@
 }
 
 * {
-  margin: 0;
-  padding: 0;
+  /*margin: 0;*/
+  /*padding: 0;*/
   box-sizing: border-box;
 }
 
@@ -44,7 +43,7 @@ body {
 
 /* Section Spacing */
 section {
-  @apply py-24 md:py-32 lg:py-40;
+  @apply py-24;
 }
 
 /* Layout Spacing */
@@ -73,16 +72,8 @@ header {
 
 /* Footer Spacing */
 footer {
-  min-height: 600px;
-  margin-top: 6rem;
+  margin-top: 4rem;
 }
-
-@media (min-width: 768px) {
-  footer {
-    min-height: 700px;
-  }
-}
-
 @keyframes pulse-slow {
   0%, 100% {
     opacity: 0.3;
@@ -153,3 +144,19 @@ footer {
 .animate-slide-horizontal {
   animation: slide-horizontal 4s ease-in-out infinite;
 }
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+@import "tailwindcss";
+

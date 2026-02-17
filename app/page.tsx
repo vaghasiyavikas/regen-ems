@@ -15,16 +15,21 @@ export default function Home() {
       <Header />
       <main style={{ padding: 0, maxWidth: '100%' }}>
         <HeroSection />
-        <div style={{ maxWidth: '1600px', margin: '0 auto', padding: '0 4rem 0 6rem' }}>
+        <div className="px-4 md:px-16 lg:px-12">
           <AsSeenIn />
           <SmartMuscleCarousel />
           <ProductShowcase />
           <TechSpecs />
+        </div>
           <WhyRegenEMS />
           <FeaturedIn />
           <Reviews />
-        </div>
       </main>
+      <div className="bg-[#bd42f4] py-4 overflow-hidden">
+        <div className="animate-marquee whitespace-nowrap text-white text-2xl font-bold">
+          ☞ Backed By The Regeneration Man &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ☞ Backed By The Regeneration Man &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ☞ Backed By The Regeneration Man &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ☞ Backed By The Regeneration Man
+        </div>
+      </div>
       <Footer />
     </div>
   );

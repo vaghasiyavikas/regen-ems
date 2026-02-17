@@ -47,7 +47,7 @@ export default function Reviews() {
   }, [isAnimating]);
 
   return (
-    <section className="bg-black py-40 lg:py-60 border-t border-gray-900 relative overflow-hidden">
+    <section className="bg-black relative overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-8 md:px-16 text-center relative z-10">
         <h2 className="text-white text-5xl md:text-7xl font-bold mb-24 tracking-tight">
           REVIEWS FROM <span className="text-[#bd42f4] relative inline-block">
