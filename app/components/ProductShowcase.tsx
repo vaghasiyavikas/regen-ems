@@ -2,8 +2,10 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useCartStore } from "../store/cartStore";
 
 export default function ProductShowcase({ hideViewDetails = false }: { hideViewDetails?: boolean }) {
+  const { addItem, openCart } = useCartStore();
   const images = [
     "/images/regen-ems-product.webp",
     "/images/regen-ems-products-2.webp",
@@ -131,7 +133,7 @@ export default function ProductShowcase({ hideViewDetails = false }: { hideViewD
               </div>
               
               <div className="flex items-baseline gap-6 border-b border-gray-800" style={{ marginBottom: '1.5rem', paddingBottom: '1.5rem' }}>
-                <span className="text-5xl font-bold tracking-tight">£149.99</span>
+                <span className="text-5xl font-bold tracking-tight">£150.00</span>
                 <span className="text-2xl text-gray-500 line-through font-light">£199.99</span>
               </div>
               
@@ -166,7 +168,19 @@ export default function ProductShowcase({ hideViewDetails = false }: { hideViewD
               </div>
               
               <div style={{ marginTop: '2rem' }}>
-                <button className="w-full btn-secondary" style={{ marginBottom: '1rem' }}>
+                <button 
+                  onClick={() => {
+                    addItem({
+                      id: 'regen-ems',
+                      name: 'Regen EMS',
+                      price: 150,
+                      image: '/images/regen-ems-product.webp'
+                    });
+                    openCart();
+                  }}
+                  className="w-full btn-secondary" 
+                  style={{ marginBottom: '1rem' }}
+                >
                   ADD TO CART
                 </button>
                 <button className="w-full btn-primary">

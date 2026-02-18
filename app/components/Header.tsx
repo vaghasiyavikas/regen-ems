@@ -2,9 +2,13 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useCartStore } from "../store/cartStore";
+import CartDrawer from "./CartDrawer";
 
 export default function Header() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { openCart, getTotalItems } = useCartStore();
+  const cartCount = getTotalItems();
 
   return (
     <>
@@ -31,11 +35,13 @@ export default function Header() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
               </svg>
             </button>
-            <button className="text-white hover:text-[#bd42f4] transition relative">
+            <button onClick={openCart} className="text-white hover:text-[#bd42f4] transition relative">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
               </svg>
-              <span className="absolute -top-1 -right-1 bg-[#bd42f4] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#bd42f4] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{cartCount}</span>
+              )}
             </button>
           </div>
         </div>
@@ -55,22 +61,22 @@ export default function Header() {
             </div>
             
             <nav className="flex-1 px-8">
-              <Link href="/" onClick={() => setIsDrawerOpen(false)} className="block text-white text-3xl font-medium py-6 border-b border-gray-800 hover:text-[#bd42f4] transition">
+              <Link href="/" onClick={() => setIsDrawerOpen(false)} className="block text-white text-xl font-medium py-4 border-b border-gray-800 hover:text-[#bd42f4] transition">
                 HOME
               </Link>
-              <Link href="/pages/regen-ems" onClick={() => setIsDrawerOpen(false)} className="block text-white text-3xl font-medium py-6 border-b border-gray-800 hover:text-[#bd42f4] transition">
+              <Link href="/pages/regen-ems" onClick={() => setIsDrawerOpen(false)} className="block text-white text-xl font-medium py-4 border-b border-gray-800 hover:text-[#bd42f4] transition">
                 REGEN EMS
               </Link>
-              <Link href="/pages/how-to-use" onClick={() => setIsDrawerOpen(false)} className="block text-white text-3xl font-medium py-6 border-b border-gray-800 hover:text-[#bd42f4] transition">
+              <Link href="/pages/how-to-use" onClick={() => setIsDrawerOpen(false)} className="block text-white text-xl font-medium py-4 border-b border-gray-800 hover:text-[#bd42f4] transition">
                 HOW TO USE
               </Link>
-              <Link href="/pages/how-it-works" onClick={() => setIsDrawerOpen(false)} className="block text-white text-3xl font-medium py-6 border-b border-gray-800 hover:text-[#bd42f4] transition">
+              <Link href="/pages/how-it-works" onClick={() => setIsDrawerOpen(false)} className="block text-white text-xl font-medium py-4 border-b border-gray-800 hover:text-[#bd42f4] transition">
                 HOW IT WORKS
               </Link>
-              <Link href="/pages/faqs" onClick={() => setIsDrawerOpen(false)} className="block text-white text-3xl font-medium py-6 border-b border-gray-800 hover:text-[#bd42f4] transition">
+              <Link href="/pages/faqs" onClick={() => setIsDrawerOpen(false)} className="block text-white text-xl font-medium py-4 border-b border-gray-800 hover:text-[#bd42f4] transition">
                 FAQ'S
               </Link>
-              <Link href="/pages/contact" onClick={() => setIsDrawerOpen(false)} className="block text-white text-3xl font-medium py-6 border-b border-gray-800 hover:text-[#bd42f4] transition">
+              <Link href="/pages/contact" onClick={() => setIsDrawerOpen(false)} className="block text-white text-xl font-medium py-4 border-b border-gray-800 hover:text-[#bd42f4] transition">
                 CONTACT
               </Link>
             </nav>
@@ -100,6 +106,7 @@ export default function Header() {
           </div>
         </>
       )}
+      <CartDrawer />
     </>
   );
 }
