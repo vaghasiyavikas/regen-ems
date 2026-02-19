@@ -1,14 +1,23 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "../store/cartStore";
+import { useAuthStore } from "../store/authStore";
 import CartDrawer from "./CartDrawer";
+import AuthModal from "./AuthModal";
 
 export default function Header() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { openCart, getTotalItems } = useCartStore();
+  const { isAuthenticated, user, logout } = useAuthStore();
   const cartCount = getTotalItems();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <>
@@ -35,11 +44,35 @@ export default function Header() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
               </svg>
             </button>
+            {isAuthenticated ? (
+              <div className="relative group/user">
+                <button className="text-white hover:text-[#bd42f4] transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  </svg>
+                </button>
+                <div className="absolute right-0 top-full mt-2 w-48 bg-black border border-gray-800 rounded-lg opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all">
+                  <div className="p-4 border-b border-gray-800">
+                    <p className="text-white text-sm font-medium">{user?.fname} {user?.sname}</p>
+                    <p className="text-gray-400 text-xs">{user?.email}</p>
+                  </div>
+                  <button onClick={logout} className="w-full text-left px-4 py-3 text-white hover:bg-[#1a1a1a] transition text-sm">
+                    Logout
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button onClick={() => setIsAuthModalOpen(true)} className="text-white hover:text-[#bd42f4] transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                </svg>
+              </button>
+            )}
             <button onClick={openCart} className="text-white hover:text-[#bd42f4] transition relative">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
               </svg>
-              {cartCount > 0 && (
+              {mounted && cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-[#bd42f4] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{cartCount}</span>
               )}
             </button>
@@ -83,12 +116,26 @@ export default function Header() {
 
             <div className="p-8 border-t border-gray-800">
               <div className="flex items-center justify-between">
-                <Link href="/login" className="flex items-center gap-2 text-white hover:text-[#bd42f4] transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                  </svg>
-                  <span>Log in</span>
-                </Link>
+                {isAuthenticated ? (
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                      </svg>
+                      <span>{user?.fname}</span>
+                    </div>
+                    <button onClick={logout} className="text-gray-400 hover:text-[#bd42f4] transition text-sm">
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => { setIsDrawerOpen(false); setIsAuthModalOpen(true); }} className="flex items-center gap-2 text-white hover:text-[#bd42f4] transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                    <span>Log in</span>
+                  </button>
+                )}
                 <div className="flex gap-4">
                   <a href="https://www.facebook.com/regenphd" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#bd42f4] transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-7 h-7">
@@ -107,6 +154,7 @@ export default function Header() {
         </>
       )}
       <CartDrawer />
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </>
   );
 }

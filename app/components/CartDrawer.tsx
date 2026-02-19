@@ -1,7 +1,10 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { useCartStore } from "../store/cartStore";
+import { useAuthStore } from "../store/authStore";
+import { authAPI, getCookie } from "../lib/api";
+import AuthModal from "./AuthModal";
 
 const suggestedProducts = [
   {
@@ -20,9 +23,67 @@ const suggestedProducts = [
 
 export default function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, addItem, getTotalPrice, getTotalItems } = useCartStore();
+  const { isAuthenticated, user, setAuth } = useAuthStore();
   const productsNotInCart = suggestedProducts.filter(product => !items.some(item => item.id === product.id));
   const [showNote, setShowNote] = useState(false);
   const [note, setNote] = useState("");
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<"cart" | "address">("cart");
+  const [newAddress, setNewAddress] = useState<{ address: string; postalcode: string }>({ address: "", postalcode: "" });
+  const [saveAddress, setSaveAddress] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [shippingAddress, setShippingAddress] = useState<{ address: string; postalcode: string } | null>(null);
+
+  const hasExistingAddress = user?.address && user?.postalcode;
+  const [useExistingAddress, setUseExistingAddress] = useState(!!hasExistingAddress);
+
+
+  useEffect(() => {
+    if(shippingAddress?.address && shippingAddress.postalcode) {
+      setUseExistingAddress(user?.address === shippingAddress?.address && user?.postalcode === shippingAddress?.postalcode)
+    }
+  }, [checkoutStep, user, shippingAddress]);
+  const handleCheckout = () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+    setCheckoutStep("address");
+  };
+
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false);
+    setCheckoutStep("address");
+  };
+
+  const handleProceedWithAddress = async () => {
+    const finalAddress = useExistingAddress && hasExistingAddress
+      ? { address: user.address || "", postalcode: user.postalcode || "" }
+      : newAddress;
+
+    if (!finalAddress.address || !finalAddress.postalcode) {
+      return;
+    }
+
+    setShippingAddress(finalAddress);
+
+    if (saveAddress && user?._id) {
+      setLoading(true);
+      try {
+        const token = getCookie("auth_token");
+        if (token) {
+          await authAPI.updatePatientAddress(user._id, finalAddress.address, finalAddress.postalcode, token);
+          const updatedUser = await authAPI.getUser(token);
+          setAuth(token, updatedUser);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    setCheckoutStep("cart");
+  };
 
   if (!isOpen) return null;
 
@@ -127,6 +188,21 @@ export default function CartDrawer() {
 
               {items.length > 0 && (
                 <div className="border-t border-gray-800 p-6 space-y-4">
+                  {shippingAddress && (
+                    <div className="bg-[#1a1a1a] p-4 rounded border border-gray-700">
+                      <div className="flex justify-between items-start mb-2">
+                        <p className="text-white font-medium">Shipping Address:</p>
+                        <button 
+                          onClick={() => setCheckoutStep("address")}
+                          className="text-[#bd42f4] hover:text-white text-sm"
+                        >
+                          Change
+                        </button>
+                      </div>
+                      <p className="text-gray-300 text-sm">{shippingAddress.address}</p>
+                      <p className="text-gray-300 text-sm">{shippingAddress.postalcode}</p>
+                    </div>
+                  )}
                   {showNote ? (
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
@@ -168,7 +244,10 @@ export default function CartDrawer() {
                     </button>
                   )}
                   <p className="text-gray-400 text-sm text-center">Taxes included. Discounts and shipping calculated at checkout.</p>
-                  <button className="w-full bg-[#bd42f4] text-white py-4 rounded font-bold text-lg hover:bg-[#a535d9] transition">
+                  <button 
+                    onClick={handleCheckout}
+                    className="w-full bg-[#bd42f4] text-white py-4 rounded font-bold text-lg hover:bg-[#a535d9] transition"
+                  >
                     CHECK OUT — £{getTotalPrice()}.00 GBP
                   </button>
                 </div>
@@ -177,6 +256,98 @@ export default function CartDrawer() {
           </div>
         </div>
       </div>
+
+      {checkoutStep === "address" && (
+        <div className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4">
+          <div className="bg-black border border-gray-800 rounded-lg w-full max-w-md p-6">
+            <h3 className="text-2xl font-bold text-white mb-4">SHIPPING ADDRESS</h3>
+            
+            {hasExistingAddress ? (
+              <div className="space-y-4">
+                <div className="bg-[#1a1a1a] p-4 rounded border border-gray-700">
+                  <p className="text-white font-medium mb-1">Current Address:</p>
+                  <p className="text-gray-300 text-sm">{user.address}</p>
+                  <p className="text-gray-300 text-sm">{user.postalcode}</p>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      checked={useExistingAddress}
+                      onChange={() => setUseExistingAddress(true)}
+                      className="w-4 h-4 accent-[#bd42f4]"
+                    />
+                    <span className="text-white">Use this address</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      checked={!useExistingAddress}
+                      onChange={() => setUseExistingAddress(false)}
+                      className="w-4 h-4 accent-[#bd42f4]"
+                    />
+                    <span className="text-white">Use different address</span>
+                  </label>
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-400 text-sm mb-4">Please enter your shipping address</p>
+            )}
+
+            {(!hasExistingAddress || !useExistingAddress) && (
+              <div className="space-y-4 mt-4">
+                <div>
+                  <label className="block text-white text-sm font-medium mb-2">Address</label>
+                  <textarea
+                    value={newAddress.address}
+                    onChange={(e) => setNewAddress({ ...newAddress, address: e.target.value })}
+                    className="w-full bg-[#1a1a1a] text-white p-3 rounded border border-gray-700 focus:border-[#bd42f4] outline-none min-h-[80px]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-white text-sm font-medium mb-2">Postal Code</label>
+                  <input
+                    type="text"
+                    value={newAddress.postalcode}
+                    onChange={(e) => setNewAddress({ ...newAddress, postalcode: e.target.value })}
+                    className="w-full bg-[#1a1a1a] text-white p-3 rounded border border-gray-700 focus:border-[#bd42f4] outline-none"
+                    required
+                  />
+                </div>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={saveAddress}
+                    onChange={(e) => setSaveAddress(e.target.checked)}
+                    className="w-4 h-4 accent-[#bd42f4]"
+                  />
+                  <span className="text-white text-sm">Save as primary address</span>
+                </label>
+              </div>
+            )}
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setCheckoutStep("cart")}
+                className="flex-1 bg-transparent border border-gray-600 text-white py-3 rounded font-bold hover:border-white transition"
+              >
+                BACK
+              </button>
+              <button
+                onClick={handleProceedWithAddress}
+                disabled={loading}
+                className="flex-1 bg-[#bd42f4] text-white py-3 rounded font-bold hover:bg-[#a835d9] transition disabled:opacity-50"
+              >
+                {loading ? "SAVING..." : "PROCEED"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={handleAuthSuccess} />
     </>
   );
 }
