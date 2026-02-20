@@ -1,36 +1,52 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export default function FeaturedIn() {
   const [visibleImages, setVisibleImages] = useState([false, false, false]);
+  const [visibleLogos, setVisibleLogos] = useState([false, false, false, false]);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const timers = [
-      setTimeout(() => setVisibleImages(prev => [true, prev[1], prev[2]]), 300),
-      setTimeout(() => setVisibleImages(prev => [prev[0], true, prev[2]]), 600),
-      setTimeout(() => setVisibleImages(prev => [prev[0], prev[1], true]), 900)
-    ];
-    return () => timers.forEach(clearTimeout);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // Stagger brand logos
+          setTimeout(() => setVisibleLogos([true, false, false, false]), 100);
+          setTimeout(() => setVisibleLogos([true, true, false, false]), 250);
+          setTimeout(() => setVisibleLogos([true, true, true, false]), 400);
+          setTimeout(() => setVisibleLogos([true, true, true, true]), 550);
+          
+          // Stagger surrounding images
+          setTimeout(() => setVisibleImages([true, false, false]), 700);
+          setTimeout(() => setVisibleImages([true, true, false]), 900);
+          setTimeout(() => setVisibleImages([true, true, true]), 1100);
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
   }, []);
 
   return (
-    <section className="bg-black" >
+    <section ref={sectionRef} className="bg-black">
       <div className="px-8 md:px-16">
         <h3 className="text-white text-center text-xl font-bold tracking-[0.3em] uppercase" style={{ marginBottom: '3rem' }}>Featured In</h3>
         
         {/* Brand Logos */}
         <div className="flex flex-wrap items-center justify-center mb-40">
-          <div className="relative w-40 h-16">
+          <div className={`relative w-40 h-16 transition-all duration-500 ${visibleLogos[0] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
             <Image src="/images/forbes.webp" alt="Forbes" fill className="object-contain" />
           </div>
-          <div className="relative w-36 h-16">
+          <div className={`relative w-36 h-16 transition-all duration-500 ${visibleLogos[1] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
             <Image src="/images/nike.webp" alt="Nike" fill className="object-contain" />
           </div>
-          <div className="relative w-48 h-16">
+          <div className={`relative w-48 h-16 transition-all duration-500 ${visibleLogos[2] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
             <Image src="/images/telegraph.webp" alt="The Telegraph" fill className="object-contain" />
           </div>
-          <div className="relative w-40 h-16">
+          <div className={`relative w-40 h-16 transition-all duration-500 ${visibleLogos[3] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
             <Image src="/images/skysports.avif" alt="Sky Sports" fill className="object-contain" />
           </div>
         </div>
